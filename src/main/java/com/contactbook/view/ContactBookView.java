@@ -19,13 +19,9 @@ public class ContactBookView extends JFrame {
     }
 
     private void initialize() {
-        JLabel myContactsLabel = new JLabel("My Contacts");
-        myContactsLabel.setFont(new Font("Segue Print", Font.BOLD, 24));
-        myContactsLabel.setBounds(465, 10, 150, 30);
-
-        this.add(myContactsLabel);
-        this.add(createContactInformationPanel());
-        this.add(createTablePanel());
+        setupHeaderPanel();
+        setupContactInformationPanel();
+        setupTablePanel();
 
         this.setTitle("Contacts Book");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -35,27 +31,21 @@ public class ContactBookView extends JFrame {
         this.setSize(1080, 720);
     }
 
-    private JLabel createLabel(String name, Bounds bounds, Font font) {
-        JLabel label = new JLabel(name);
-        label.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
-        label.setFont(font);
-        return label;
+    private void setupHeaderPanel() {
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(null);
+        headerPanel.setBounds(0, 0, 1080, 100);
+        headerPanel.setBackground(new Color(0x9370db));
+
+        setupLabel(headerPanel,
+                "My Contacts",
+                new Bounds(465, 10, 150, 30),
+                new Font("Segue Print", Font.BOLD, 24));
+
+        this.add(headerPanel);
     }
 
-    private JTextField createTextField(Bounds bounds, Font font) {
-        JTextField textField = new JTextField();
-        textField.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
-        textField.setFont(font);
-        return textField;
-    }
-
-    private JButton createButton(String name, Bounds bounds) {
-        JButton button = new JButton(name);
-        button.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
-        return button;
-    }
-
-    private JPanel createContactInformationPanel() {
+    private void setupContactInformationPanel() {
         final Font DEFAULT_FONT = new Font("Segue Print", Font.BOLD, 16);
 
         JPanel contactsPanel = new JPanel();
@@ -63,45 +53,59 @@ public class ContactBookView extends JFrame {
         contactsPanel.setBounds(0, 200, 380, 380);
         contactsPanel.setBackground(new Color(0x9370db));
 
-        contactsPanel.add(createLabel("Contacts", new Bounds(10, 0, 370, 30), DEFAULT_FONT));
+        setupLabel(contactsPanel, "Contacts", new Bounds(10, 0, 370, 30), DEFAULT_FONT);
+        setupLabel(contactsPanel, "Name", new Bounds(10, 60, 370, 30), DEFAULT_FONT);
+        setupLabel(contactsPanel, "Email", new Bounds(10, 120, 370, 30), DEFAULT_FONT);
+        setupLabel(contactsPanel, "Phone", new Bounds(10, 180, 370, 30), DEFAULT_FONT);
 
-        contactsPanel.add(createLabel("Name", new Bounds(10, 60, 370, 30), DEFAULT_FONT));
-        contactsPanel.add(createLabel("Email", new Bounds(10, 120, 370, 30), DEFAULT_FONT));
-        contactsPanel.add(createLabel("Phone", new Bounds(10, 180, 370, 30), DEFAULT_FONT));
+        nameField = setupTextField(contactsPanel, new Bounds(70, 60, 300, 30), DEFAULT_FONT);
+        emailField = setupTextField(contactsPanel, new Bounds(70, 120, 300, 30), DEFAULT_FONT);
+        phoneNumberField = setupTextField(contactsPanel, new Bounds(70, 180, 300, 30), DEFAULT_FONT);
 
-        nameField = createTextField(new Bounds(70, 60, 300, 30), DEFAULT_FONT);
-        contactsPanel.add(nameField);
+        insertButton = setupButton(contactsPanel, "Insert", new Bounds(50, 240, 120, 50));
+        clearButton = setupButton(contactsPanel, "Clear", new Bounds(210, 240, 120, 50));
+        deleteButton = setupButton(contactsPanel, "Delete", new Bounds(110, 310, 140, 50));
 
-        emailField = createTextField(new Bounds(70, 120, 300, 30), DEFAULT_FONT);
-        contactsPanel.add(emailField);
-
-        phoneNumberField = createTextField(new Bounds(70, 180, 300, 30), DEFAULT_FONT);
-        contactsPanel.add(phoneNumberField);
-
-        insertButton = createButton("Insert", new Bounds(50, 240, 120, 50));
-        contactsPanel.add(insertButton);
-        clearButton = createButton("Clear", new Bounds(210, 240, 120, 50));
-        contactsPanel.add(clearButton);
-        deleteButton = createButton("Delete", new Bounds(110, 310, 140, 50));
-        contactsPanel.add(deleteButton);
-        return contactsPanel;
+        this.add(contactsPanel);
     }
 
-    private JPanel createTablePanel() {
+    private void setupTablePanel() {
         JPanel tablePanel = new JPanel();
         tablePanel.setLayout(new GridLayout(1, 1));
         tablePanel.setBounds(420, 200, 640, 480);
         tablePanel.setBackground(new Color(0x9370db));
-        tablePanel.add(createTable());
-        return tablePanel;
+        setupTable(tablePanel);
+        this.add(tablePanel);
     }
 
-    private JScrollPane createTable() {
+    private void setupLabel(JPanel master, String name, Bounds bounds, Font font) {
+        JLabel label = new JLabel(name);
+        label.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+        label.setFont(font);
+        master.add(label);
+    }
+
+    private JTextField setupTextField(JPanel master, Bounds bounds, Font font) {
+        JTextField textField = new JTextField();
+        textField.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+        textField.setFont(font);
+        master.add(textField);
+        return textField;
+    }
+
+    private JButton setupButton(JPanel master, String name, Bounds bounds) {
+        JButton button = new JButton(name);
+        button.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+        master.add(button);
+        return button;
+    }
+
+    private void setupTable(JPanel master) {
         model = new DefaultTableModel(contactBookModel.getContacts(), contactBookModel.getHeaders());
         tableContacts = new JTable();
         tableContacts.setModel(model);
         tableContacts.setFont(new Font("Segue Print", Font.BOLD, 16));
-        return new JScrollPane(tableContacts);
+        master.add(new JScrollPane(tableContacts));
     }
 
     public String getName() {
@@ -121,8 +125,7 @@ public class ContactBookView extends JFrame {
     }
 
     public void updateTable() {
-        model = new DefaultTableModel(contactBookModel.getContacts(), contactBookModel.getHeaders());
-        tableContacts.setModel(model);
+        model.setDataVector(contactBookModel.getContacts(), contactBookModel.getHeaders());
     }
 
     public void addInsertListener(ActionListener listenForInsertButton) {
